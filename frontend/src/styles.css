@@ -331,6 +331,26 @@ button {
   background: #edf5fb;
 }
 
+.admin-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-list-item span {
+  flex: 1;
+}
+
+.contact-button,
+.danger-button {
+  flex-shrink: 0;
+}
+
+.danger-button {
+  background: #b42318;
+}
+
 .secondary-button {
   background: #dce8f2;
   color: #17324d;
@@ -350,5 +370,10 @@ button {
   .enrollment-form,
   .event-form {
     grid-template-columns: 1fr;
+  }
+
+  .admin-list-item {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

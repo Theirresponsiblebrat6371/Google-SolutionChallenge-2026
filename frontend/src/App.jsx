@@ -10,19 +10,19 @@ const ngoHighlights = [
 const initialEvents = [
   {
     id: 1,
-    name: "Mobile health camp",
-    location: "Sakchi",
+    name: "Blood donation camp",
+    location: "Bhilai",
     date: "Tomorrow",
     time: "10:00 AM",
-    details: "Medical outreach requested near Bistupur with first-aid volunteers."
+    details: "Blood donation volunteers and donor registration support needed in Bhilai."
   },
   {
     id: 2,
-    name: "Food distribution drive",
-    location: "Area A",
+    name: "Feeding street dogs",
+    location: "Bhilai",
     date: "Friday",
     time: "2:00 PM",
-    details: "Food distribution support needed in Area A for affected families."
+    details: "Volunteer support needed in Bhilai for feeding rounds and supply distribution."
   },
   {
     id: 3,
@@ -41,16 +41,27 @@ const enrollmentFields = [
   { label: "Skills", placeholder: "Food, medical, sanitation" }
 ];
 
+const initialVolunteerProfiles = [];
+
 export default function App() {
   const [role, setRole] = useState("volunteer");
   const [loggedInRole, setLoggedInRole] = useState(null);
   const [events, setEvents] = useState(initialEvents);
+  const [volunteerProfiles, setVolunteerProfiles] = useState(initialVolunteerProfiles);
   const [eventForm, setEventForm] = useState({
     name: "",
     location: "",
     date: "",
     time: "",
     details: ""
+  });
+  const [volunteerForm, setVolunteerForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    skills: "",
+    availability: "Weekdays Evenings",
+    preferredCity: ""
   });
 
   const handleEventChange = (field, value) => {
@@ -83,6 +94,44 @@ export default function App() {
       time: "",
       details: ""
     });
+  };
+
+  const handleVolunteerChange = (field, value) => {
+    setVolunteerForm((current) => ({
+      ...current,
+      [field]: value
+    }));
+  };
+
+  const handleVolunteerSubmit = () => {
+    if (
+      !volunteerForm.fullName ||
+      !volunteerForm.email ||
+      !volunteerForm.phone ||
+      !volunteerForm.skills ||
+      !volunteerForm.preferredCity
+    ) {
+      return;
+    }
+
+    const nextVolunteer = {
+      id: Date.now(),
+      ...volunteerForm
+    };
+
+    setVolunteerProfiles((current) => [nextVolunteer, ...current]);
+    setVolunteerForm({
+      fullName: "",
+      email: "",
+      phone: "",
+      skills: "",
+      availability: "Weekdays Evenings",
+      preferredCity: ""
+    });
+  };
+
+  const handleRemoveEvent = (eventId) => {
+    setEvents((current) => current.filter((event) => event.id !== eventId));
   };
 
   if (!loggedInRole) {
@@ -200,11 +249,11 @@ export default function App() {
             <ul className="timeline">
               <li>
                 <strong>Food shortage</strong>
-                <span>Priority 91 • 5 volunteers requested • Area A</span>
+                <span>Priority 91 • 5 volunteers requested • Bhilai</span>
               </li>
               <li>
                 <strong>Medical camp support</strong>
-                <span>Priority 88 • 3 volunteers requested • Sakchi</span>
+                <span>Priority 88 • 3 volunteers requested • Bhilai</span>
               </li>
               <li>
                 <strong>Sanitation audit</strong>
@@ -228,7 +277,7 @@ export default function App() {
                 <label className="field">
                   <span>Location</span>
                   <input
-                    placeholder="Area A, Jamshedpur"
+                    placeholder="Bhilai"
                     value={eventForm.location}
                     onChange={(event) => handleEventChange("location", event.target.value)}
                   />
@@ -264,10 +313,46 @@ export default function App() {
                 <p className="eyebrow">Scheduled Events</p>
                 <ul className="feed admin-feed">
                   {events.map((event) => (
-                    <li key={event.id}>
-                      {event.name} • {event.location} • {event.date} {event.time}
+                    <li key={event.id} className="admin-list-item">
+                      <span>
+                        {event.name} • {event.location} • {event.date} {event.time}
+                      </span>
+                      <button
+                        type="button"
+                        className="danger-button"
+                        onClick={() => handleRemoveEvent(event.id)}
+                      >
+                        Remove event
+                      </button>
                     </li>
                   ))}
+                </ul>
+              </div>
+              <div className="event-list">
+                <p className="eyebrow">Submitted Volunteers</p>
+                <ul className="feed admin-feed">
+                  {volunteerProfiles.length ? (
+                    volunteerProfiles.map((profile) => (
+                      <li key={profile.id} className="admin-list-item">
+                        <span>
+                          {profile.fullName} • {profile.skills} • {profile.preferredCity} • {profile.availability}
+                        </span>
+                        <button
+                          type="button"
+                          className="contact-button"
+                          onClick={() =>
+                            window.alert(
+                              `Contact ${profile.fullName}\nEmail: ${profile.email}\nPhone: ${profile.phone}`
+                            )
+                          }
+                        >
+                          Contact
+                        </button>
+                      </li>
+                    ))
+                  ) : (
+                    <li>No volunteer profiles submitted yet.</li>
+                  )}
                 </ul>
               </div>
             </section>
@@ -288,19 +373,38 @@ export default function App() {
                 <button className="secondary-button light" onClick={() => setLoggedInRole(null)}>
                   Log out
                 </button>
-                <button>Submit profile</button>
+                <button type="button" onClick={handleVolunteerSubmit}>
+                  Submit profile
+                </button>
               </div>
             </div>
             <form className="enrollment-form">
-              {enrollmentFields.map((field) => (
-                <label key={field.label} className="field">
-                  <span>{field.label}</span>
-                  <input placeholder={field.placeholder} />
-                </label>
-              ))}
+              {enrollmentFields.map((field) => {
+                const fieldMap = {
+                  "Full Name": "fullName",
+                  Email: "email",
+                  Phone: "phone",
+                  Skills: "skills"
+                };
+                const fieldKey = fieldMap[field.label];
+
+                return (
+                  <label key={field.label} className="field">
+                    <span>{field.label}</span>
+                    <input
+                      placeholder={field.placeholder}
+                      value={volunteerForm[fieldKey]}
+                      onChange={(event) => handleVolunteerChange(fieldKey, event.target.value)}
+                    />
+                  </label>
+                );
+              })}
               <label className="field">
                 <span>Availability</span>
-                <select defaultValue="Weekdays Evenings">
+                <select
+                  value={volunteerForm.availability}
+                  onChange={(event) => handleVolunteerChange("availability", event.target.value)}
+                >
                   <option>Weekdays Evenings</option>
                   <option>Weekends</option>
                   <option>Full Time</option>
@@ -308,7 +412,11 @@ export default function App() {
               </label>
               <label className="field">
                 <span>Preferred City</span>
-                <input placeholder="Jamshedpur" />
+                <input
+                  placeholder="Bhilai"
+                  value={volunteerForm.preferredCity}
+                  onChange={(event) => handleVolunteerChange("preferredCity", event.target.value)}
+                />
               </label>
             </form>
             <div className="feed-panel">

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     app_port: int = 8000
     match_radius_km: float = 10.0
     priority_threshold: int = 70
-    default_city: str = "Jamshedpur"
+    default_city: str = "Bhilai"
     debug: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
